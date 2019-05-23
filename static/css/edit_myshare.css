@@ -1,0 +1,101 @@
+.edms-h4{
+    margin-left:20px;
+    font-weight: bold;
+}
+.edms-h1{
+    width: 100%;
+    margin-top:0px;
+    height: 1px;
+    background-color:#dddddd;
+}
+.edms-div{
+    margin-left:20px;
+    margin-top:10px;
+}
+.edms-div .edms-dp{
+    display:inline-block;
+}
+.edms-div .edms-dp .edms-dp-img{
+    height:100px;
+}
+.edms-div .edms-dvm{
+    display:inline-block;
+    vertical-align:top;
+    margin-left:10px;
+    font-weight: bold;
+}
+.edms-div .edms-dvm .emd{
+    margin-top: 10px;
+}
+.edms-div .edms-dvm .emd .emd-a{
+    color:orange;
+}
+.edms-div .edms-dvm .emd .emd-a .emd-p{
+    width:180px;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+}
+/*第二个div*/
+.em-div{
+    margin-top: 30px;
+}
+.em-h{
+    width: 100%;
+    margin-top:20px;
+    height: 1px;
+    background-color:#dddddd;
+}
+.em-d{
+    margin-left:20px;
+}
+.em-div .em-d .em-str{
+    word-wrap:break-word;
+    word-break:normal;
+}
+.em-div .em-d .em-bttm{
+    margin-bottom:50px;
+}
+
+/*edit_report.html*/
+.edrp-a{
+    font-weight:bold;
+}
+.edrp-ipt{
+    margin-bottom:30px;
+}
+.edrp-ip-btn{
+    margin-right:5px;
+    width:100px;
+    margin-top:15px;
+}
+button.edrp-btn{
+    margin-left:5px;
+    width:100px;
+    margin-top:15px;
+}
+
+/*index.html*/
+.index-h4{
+    margin-left:20px;
+    font-weight: bold;
+    margin-top:15px;
+}
+.index-hh{
+   margin-left:20px;
+    font-weight: bold;
+    word-wrap:break-word;
+    word-break:normal;
+}
+.indh4{
+    margin-left:20px;
+    font-weight: bold;
+    margin-bottom: 50px;
+}
+
+.nrf-img{
+    height:80px;
+}
+.nrf-d{
+    margin-top: 20px;
+}

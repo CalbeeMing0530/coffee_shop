@@ -1,0 +1,10 @@
+*.pyc
+*.conf
+common
+common/*
+logs
+*.log
+*.swp
+*.swo
+.idea/
+.DS_Store

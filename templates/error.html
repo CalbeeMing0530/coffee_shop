@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block styles %}
+{% endblock %}
+
+{% block scripts%}
+{% endblock %}
+
+{% block page_body %}
+<div class="motopress-wrapper content-holder clearfix"> 
+  <div class="container"> 
+     <center style="margin-top: 50px;">
+       <p style="font-size: large;color:grey" class="err-h1"><strong>{{message}}</strong></p>
+       <div style="margin: 40px;">
+         <img src="/static/image/information.png" style="width:140px">
+       </div>
+    </center>
+  </div>
+</div>
+
+ {% endblock %}

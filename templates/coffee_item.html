@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+function show_all(coffee_id){
+    if($("#"+coffee_id+"_coffee_name").css("white-space") == "normal"){
+        $("#"+coffee_id+"_coffee_name").css('white-space','nowrap');
+        $("#"+coffee_id+"_coffee_en_name").css('white-space','nowrap');
+    }
+    else{
+        $("#"+coffee_id+"_coffee_name").css('white-space','normal');
+        $("#"+coffee_id+"_coffee_en_name").css('white-space','normal');
+    }
+
+}
+</script>
+{% endblock %}
+{% block page_body %}
+    <div style="margin-bottom: 70px;">
+    {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                  <a href="#" class="thumbnail">
+                    <img src="/static/image/Registration_activities.png" alt="图片展示区" onclick="user_register()">
+                  </a>
+            </div>
+            <div class="row" style="margin-bottom:10px">
+               <div>
+                {% if drinking_type == 'coffee' %}
+                 <center>
+                    <div class="col-sm-6 col-xs-6" id="package">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="pacakge()">购买套餐</button>
+                    </div>
+                    <div class="col-sm-6 col-xs-6" id="tea">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="tea()">茶饮单品</button>
+                    </div>
+                 </center>
+                {% elif drinking_type == 'tea'%}
+                 <center>
+                    <div class="col-sm-6 col-xs-6" id="package">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="pacakge()">购买套餐</button>
+                    </div>
+                     <div class="col-sm-6 col-xs-6" id="coffee">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="coffee()">咖啡单品</button>
+                    </div>
+                 </center>
+                {%else%}
+                  <center>
+                    <div class="col-sm-6 col-xs-6" id="tea">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="tea()">茶饮单品</button>
+                    </div>
+                     <div class="col-sm-6 col-xs-6" id="coffee">
+                        <button class="btn btn-warning btn-lg" style="width:100%" onclick="coffee()">咖啡单品</button>
+                    </div>
+                 </center>
+                {%endif%}
+              </div>
+            </div>
+            <div id="{{drinking_type}}">
+            {% for coffee in coffee_info %}
+            <div class="row">
+              <div class="col-sm-12 col-xs-12">
+                  <div class="col-sm-12 col-xs-12 thumbnail" style="box-shadow: 2px 2px 10px #ccc;margin-bottom: 5px;">
+                      <div class="col-sm-3 col-xs-3">
+                          <img src="/static/image/coffee_images/{{coffee.coffee_image}}" alt="产品图片" style="height:50px">
+                      </div>
+                      {% if drinking_type == 'package' %}
+                      <div class="col-sm-7 col-xs-7" onclick="show_all({{coffee.coffee_id}})">
+                         <div id="{{coffee.coffee_id}}_coffee_name" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width: 150px;">
+                           {{coffee.coffee_name}}
+                         </div>
+                         <div id="{{coffee.coffee_id}}_coffee_en_name" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width: 150px;">
+                           {{coffee.coffee_en_name}}
+                         </div>
+                         <div>
+                            <span>￥{{coffee.coffee_price}}</span> <span style="text-decoration:line-through;margin-left:5px;color: darkgrey;font-size: small;"> ￥{{coffee.coffee_origin_price}}</span><span style="margin-left:10px" class="fa fa-caret-down"></span>
+                         </div>
+                     </div>
+                      {% else %}
+                       <div class="col-sm-7 col-xs-7">
+                            <div>
+                             {{coffee.coffee_name}}
+                           </div>
+                           <div>
+                             {{coffee.coffee_en_name}}
+                           </div>
+                           <div>
+                             <span>￥{{coffee.coffee_price}}</span><span style="text-decoration:line-through;margin-left:5px;color: darkgrey;font-size: small;"> ￥{{coffee.coffee_origin_price}}</span>
+                           </div>
+                      </div>
+                      {% endif %}
+                      <div class="col-sm-2 col-xs-2">
+                          <img src="/static/image/add.png" alt="添加" onclick="add_cart('{{coffee.coffee_id}}','{{coffee.coffee_name}}','{{coffee.coffee_price}}')" style="height: 20;margin-top: 20px;"/>
+                      </div>
+                  </div>
+              </div>
+            </div>
+           {% endfor %}
+         </div>
+      </div>
+</div>
+{% endblock%}

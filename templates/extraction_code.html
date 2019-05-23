@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block page_body %}
+    <div>
+    {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                  <a href="#" class="thumbnail">
+                    <img src="/static/image/Registration_activities.png" alt="图片展示区" onclick="user_register()" >
+                  </a>
+            </div>
+
+            <div>
+                <div class="thumbnail" style="box-shadow: 2px 2px 10px #ccc;margin-bottom: 5px;">
+                    <center>
+                        <div style="font-size: x-large;">提货码</div>
+                        <div style="font-size: smaller;margin-top: 10px;">请于设备端触摸屏下方点击"提货码"后输入下方提取码领取</div>
+                    </center>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <div style="display:inline-block;float:left">
+                    商品名称：{{coffee_name}}
+                </div>
+                <div style="display:inline-block;float:right">
+                    数量：{{coffee_count}} 杯
+                </div>
+            </div>
+           
+            <div class="col-xs-10 col-sm-10 col-xs-offset-1 col-sm-offset-1 thumbnail" style="box-shadow: 2px 2px 10px #ccc;margin-bottom: 5px;margin-top:20px;text-align: center;">
+            {% for coffee in coffee_info%}
+                <div>{{coffee.coffee_code}}</div>
+                <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock%}
+
+

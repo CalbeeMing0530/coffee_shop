@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+//向后台云片发送手机号码，获取验证码
+//$("#forcode").click(function(){
+function forcode(obj){
+    var mobile = $("#mobile").val();
+    if(mobile == ""){
+        alert('手机号不能为空!');
+        return;
+    }
+    if(mobile != ""){
+        var reg = /^(13\d|14[5|7]|15\d|166|17\d|18\d)\d{8}$/;
+        var patt = new RegExp(mobile, "i");
+        if(!reg.test(mobile)){ 
+            alert('请输入有效手机号码!');
+            $("#mobile").val('');
+            $("#mobile").focus();
+            return;
+        }
+    
+    }
+
+    $.ajax({
+        //cache:false,
+        type:"POST",
+        url:"/users/for_sms_code/",
+        data:{mobile:$("#mobile").val()},
+        success:function (res) {
+            if(res == 'ok'){
+                settime(obj);
+                alert('发送成功,请注意查收');
+            }
+            else if(res == 'wrong_format'){
+                alert('请输入有效手机号码!');
+                $("#mobile").val('');
+                $("#mobile").focus();
+            }
+            else if(res == 'mobile_blank'){
+                alert('手机号不能为空!');
+            }
+            else{
+                alert(res);
+            }
+        },
+        error:function(res){
+        
+        }
+    });
+}
+//});
+
+</script>
+<script>
+    var countdown = 60;
+    function settime(obj) {
+        if (countdown == 0) {
+            obj.removeAttribute("disabled");
+            obj.value="获取验证码";
+            countdown = 60;
+            return;
+        }
+        else{
+            obj.setAttribute("disabled", true);
+            obj.value = "重新发送(" + countdown + ")";
+            countdown--;
+        }
+        setTimeout(function() {settime(obj) },1000)
+    }
+
+
+</script>
+<script>
+    function confirm_register(){
+        var mobile = $("#mobile").val();
+        var code = $("#code").val();
+        //校验手机
+        if(mobile == ""){
+            alert("手机号不能为空!");
+            return;
+        }
+        if(mobile != ""){
+            var reg = /^(13\d|14[5|7]|15\d|166|17\d|18\d)\d{8}$/;
+            var patt = new RegExp(mobile, "i");
+            if(!reg.test(mobile)){ 
+                alert('请输入有效手机号码!');
+                $("#mobile").val('');
+                $("#mobile").focus();
+                return;
+            }
+        }
+        //校验验证码
+        if(code == ""){
+            alert("请输入验证码！")
+            return;
+        }
+        $.ajax({
+            type:"POST",
+            dataType:'json',
+            url:"/users/is_code_right/",
+            data:{mobile:$("#mobile").val(),code:$("#code").val()},
+            success:function (res) {
+                if(res.status == 'expire'){
+                    alert('您的验证码有效期已过，请重新获取验证码！');
+                    $("#code").val('');
+                    $("#code").focus();
+                }
+                else if(res.status == 'ok'){
+                    alert('注册成功，代金券已放置您个人中心，快去使用吧！')
+                    location.href = "/coffee/coupon/";
+                }
+                else if(res.status == 'error'){
+                    alert('输入验证码错误，请查证后重新输入！')
+                    $("#code").val('');
+                    $("#code").focus();
+                }
+                else if(res.status == 'duplicated_number'){
+                    alert('会员信息已存在!')
+                    $("#code").val('');
+                    $("#code").focus();
+                }
+                else{
+                    alert('请输入有效手机号码!');
+                    $("#mobile").val('');
+                    $("#mobile").focus();
+                }
+            },
+            error:function(res){
+            
+            }
+        });
+    }
+
+</script>
+{% endblock %}
+
+{% block page_body %}
+    <div>
+    {% csrf_token %}
+        <div class="container">
+           <div>
+             <div style="font-size: x-large;margin-top: 50px;">
+                请输入您的手机号
+             </div>
+             <div>
+                为了更好的获得服务，请绑定您常用的手机号码
+             </div>
+           </div>
+           <div style="margin-top: 50px;">
+             <div class="form-horizontal">
+               <div class="form-group">
+                   <div class="col-sm-12 col-xs-12">
+                       <input class="form-control" id="mobile"  placeholder="请输入手机号(必填)">
+                   </div>
+               </div>
+               <div class="form-group">
+                   <div class="col-sm-8 col-xs-8">
+                       <input class="form-control" placeholder="请输入验证码" id="code">
+                   </div>
+                   <div class="col-sm-4 col-xs-4">
+                       <input class="form-control btn btn-default btn-xs" type="button" onclick="forcode(this)"  value="获取验证码">
+                   </div>
+              </div>
+             </div>
+           </div>
+           
+           <div style="margin-top:30px">
+                <input  type="button" class="btn btn-warning btn-lg" onclick="confirm_register()" style="width:100%" value="确认" />
+           </div>
+           <!--<div style="margin-top: 10px;">
+               <img src="..." alt="...">同意《法律声明及隐私政策》 
+           </div>--!>
+      </div>
+    </div>
+{% endblock%}

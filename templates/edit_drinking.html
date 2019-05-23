@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+function update(){
+    var dringking_id = $("#dringking_id").val();
+    var coffee_name = $("#coffee_name").val();
+    var coffee_en_name = $("#coffee_en_name").val();
+    var coffee_price = $("#coffee_price").val();
+    var coffee_origin_price = $("#coffee_origin_price").val();
+    var coffee_concentration = $("#coffee_concentration").val();
+    var order_by_id = $("#order_by_id").val();
+    //修改饮品
+    $.ajax({
+        type:"POST",
+        url:"/coffee/edit_drinking_info/",
+        dataType:'json',
+        data: {'dringking_id':dringking_id,'coffee_name':coffee_name,'coffee_en_name':coffee_en_name,'coffee_price':coffee_price,'coffee_concentration':coffee_concentration,'coffee_origin_price':coffee_origin_price,'order_by_id':order_by_id},
+        success:function(res){
+          if(res.status == "ok"){
+            alert("修改成功!");
+            //parent.location.reload();
+            location.href="/coffee/drinking_setting/";
+          }
+          else{
+            alert("请求出错!")
+          }
+        },
+        error:function(result){
+            alert("请求出错!")
+        }
+    });
+
+}
+</script>
+{% endblock %}
+{% block page_body %}
+<div class="container">
+    <form id="modify_form" class="form-horizontal">
+            <div>
+                <input type="hidden" id="dringking_id" value="{{coffee_info.coffee_id}}">
+                <center>
+                    <h4>修改信息</h4>
+                    <table>
+                        <tr>
+                            <td><label>序号:</label></td>
+                            <td><input class="form-control" type="text" id="order_by_id"  value="{{coffee_info.order_by_id}}"></td>
+                        </tr>
+                        <tr>
+                            <td><label>饮品名称:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_name"  value="{{coffee_info.coffee_name}}"></td>
+                        </tr>
+                        <tr>
+                            <td><label>英文名称:</label></td>
+                            <td><textarea cols="5" style="height:200px" class="form-control" type="text" id="coffee_en_name"  value="{{coffee_info.coffee_en_name}}">{{coffee_info.coffee_en_name}}</textarea></td>
+                        </tr>
+                         <tr>
+                            <td><label>饮品原价:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_origin_price" value="{{coffee_info.coffee_origin_price}}"></td>
+                        </tr>
+                        <tr>
+                            <td><label>饮品现价:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_price" value="{{coffee_info.coffee_price}}"></td>
+                        </tr>
+                         <tr>
+                            <td><label>饮品浓度:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_concentration" value="{{coffee_info.coffee_concentration}}"></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:20px">
+                        <input type='button' class="btn btn-success" onclick="update();" value="更新">
+                    </div>
+                </center>
+            </div>
+    </form>
+</div>
+{% endblock %}
+
+
+

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+   var result = {{result | safe}};
+   var second_level_cart_info = result.second_level_cart_info;
+   var first_level_cart_info = result.first_level_cart_info;
+   var first_level_cart_info = JSON.parse(first_level_cart_info)
+   //coupon
+   if("{{max_coupon}}" == "no_coupon"){
+     var original_total_price = first_level_cart_info.price;
+     var total_price = first_level_cart_info.price;
+   }
+   else{
+     var coupon = "{{max_coupon.coffee_coupon_number}}";
+     var original_total_price = first_level_cart_info.price;
+     var total_price = (parseFloat(original_total_price) - parseFloat(coupon)).toFixed(2);
+   }
+
+   
+   second_level_cart_info = JSON.parse(second_level_cart_info);
+   var html = ""
+   for(var temp in second_level_cart_info){
+         html = '<div style="margin-top: 20px;" class="col-xs-12 col-sm-12 '+second_level_cart_info[temp].drinking_id+' " ><div class="col-sm-5 col-xs-5">'
+              //+ ''+second_level_cart_info[temp].drinking_name+' * '+second_level_cart_info[temp].drinking_count+' '
+              + ''+second_level_cart_info[temp].drinking_name+'</div>';
+              if("{{max_coupon}}" == "no_coupon"){
+                html += '<div class="col-sm-5 col-xs-5"><span><img src="/static/image/minus.png" style="width: 15px;margin-bottom: 4px;margin-right: 15px;" onclick=modify_drinking_count('+second_level_cart_info[temp].drinking_id+','+second_level_cart_info[temp].drinking_price+',1,"l_2","no_coupon",2)></span><span class='+second_level_cart_info[temp].drinking_id+'>'+second_level_cart_info[temp].drinking_count+'</span><span><img src="/static/image/add.png" style="width: 15px;margin-bottom: 4px;margin-left: 15px;" onclick=modify_drinking_count('+second_level_cart_info[temp].drinking_id+','+second_level_cart_info[temp].drinking_price+',2,"l_2","no_coupon",2)></span></div>';
+              }
+              else{
+                 html += '<div class="col-sm-5 col-xs-5"><span><img src="/static/image/minus.png" style="width: 15px;margin-bottom: 4px;margin-right: 15px;" onclick=modify_drinking_count('+second_level_cart_info[temp].drinking_id+','+second_level_cart_info[temp].drinking_price+',1,"l_2",{{max_coupon.coffee_coupon_number}},2)></span><span class='+second_level_cart_info[temp].drinking_id+'>'+second_level_cart_info[temp].drinking_count+'</span><span><img src="/static/image/add.png" style="width: 15px;margin-bottom: 4px;margin-left: 15px;" onclick=modify_drinking_count('+second_level_cart_info[temp].drinking_id+','+second_level_cart_info[temp].drinking_price+',2,"l_2",{{max_coupon.coffee_coupon_number}},2)></span></div>';
+                
+              }
+              //+ '</div>'
+              html += '<div class="col-sm-2 col-xs-2"><img src="/static/image/bin.png" alt="添加" style="height: 20;" onclick="delete_drinking('+second_level_cart_info[temp].drinking_id+','+second_level_cart_info[temp].drinking_price+')"/></div></div>';
+        $("#cart_drinking_info").append(html);
+   }
+   $("#cart_drinking_info").css("height",result.cart_info_height);
+   $("#total_price").text("￥"+ original_total_price);
+   $("#settlement_price").text("￥"+ total_price);
+   $("#last_price").text("结算金额：￥"+ total_price);
+   $("#total").val(total_price);
+</script>
+<script>
+function delete_drinking(id,price){
+    //删除饮品
+    $.ajax({
+        type:"POST",
+        url:"/coffee/delete_drinking/",
+        dataType:'json',
+        data: {'id':id},
+        success:function(res){
+            if(res.status == 'last'){
+                window.location.href = 'http://www.coffeen.cn/coffee/temp_0/';
+            }
+            else{
+                console.log(res);
+                var drinking_id = res.drinking_id;
+                var total_price = res.total_price;
+                $("."+drinking_id+"").remove();
+                if("{{max_coupon}}" == "no_coupon"){
+                    $("#total_price").text("￥"+ total_price);
+                    $("#settlement_price").text("￥"+ total_price);
+                    $("#last_price").text("结算金额：￥"+ total_price);
+                    $("#total").val(total_price);
+                }
+                else{
+                    original_total_price = parseFloat(total_price).toFixed(2);
+                    total_price = (parseFloat(total_price) - parseFloat(coupon)).toFixed(2);
+                    $("#total_price").text("￥"+ original_total_price);
+                    $("#settlement_price").text("￥"+ total_price);
+                    $("#last_price").text("结算金额：￥"+ total_price);
+                    $("#total").val(total_price);
+                }
+            }
+        },
+        error:function(res){
+        
+        }
+    });
+}
+</script>
+<script>
+function onBridgeReady(data,coupon_id,last_price){
+   WeixinJSBridge.invoke(
+        'getBrandWCPayRequest', {
+            "appId":data.appId,     //公众号名称，由商户传入     
+            "timeStamp":data.timeStamp,         //时间戳，自1970年以来的秒数     
+            "nonceStr": data.nonceStr, //随机串     
+            "package":data.package,     
+            "signType":"MD5",         //微信签名方式：     
+            "paySign": data.paySign //微信签名 
+        },
+        function(res){
+            if(res.err_msg == "get_brand_wcpay_request:ok" ){
+                //alert("支付成功");
+                window.location.href = 'http://www.coffeen.cn/coffee/weixin_pay_success/'+last_price+'/'+coupon_id+'';
+            }
+            else if(res.err_msg == "get_brand_wcpay_request:cancel"){
+                //alert("您已取消支付");
+            }
+            else if(res.err_msg == "get_brand_wcpay_request:fail"){
+                alert("支付失败!");
+            // 使用以上方式判断前端返回,微信团队郑重提示：
+            //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+            }
+        }); 
+}
+
+
+function weixin_pay(coupon_id){
+    //触发微信支付流程，返回支付成功后跳转至pay_success页面
+     //var order = $(this).data('parm');
+     $.ajaxSetup({
+        data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+     });
+     $.ajax({
+        type: 'POST',
+        url: '/coffee/weixin_pay/',
+        data: {'order_price': $("#total").val()},
+        dataType: 'json',
+        success: function (data) {
+            if (typeof WeixinJSBridge == "undefined"){
+               if( document.addEventListener ){
+                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+               }else if (document.attachEvent){
+                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+               }
+            }
+            else{
+                 onBridgeReady(data,coupon_id,$("#total").val());
+            }
+        },
+        error:function(){
+        
+        }
+     });
+}
+</script>
+{% endblock %}
+{% block page_body %}
+    <div style="margin-bottom: 70px;">
+    {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                  <a href="#" class="thumbnail">
+                    <img src="/static/image/Registration_activities.png" alt="图片展示区" >
+                  </a>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-xs-12 col-sm-12">
+                    <div style="border: 1px solid #e7e7e7;box-shadow: 2px 2px 10px #ccc;height: 80;" id="cart_drinking_info">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                  <div style="border: 1px solid #e7e7e7;box-shadow: 2px 2px 10px #ccc;height: 140px;">
+                    <div class="col-sm-12 col-xs-12" style="margin-top: 10px;">
+                     <div class="col-sm-8 col-xs-8">
+                        金额：
+                     </div>
+                     <div class="col-sm-4 col-xs-4" id="total_price">
+                        
+                     </div>
+                    </div>
+                    <div style="margin-bottom:40px;margin-top: 20px;" class="col-sm-12 col-xs-12">
+                     <div class="col-sm-8 col-xs-8">
+                        优惠券抵扣：
+                     </div>
+                     <div class="col-sm-4 col-xs-4" style="color:red">
+                        {% if max_coupon == "no_coupon" %}
+                        ￥ 0.00
+                        {% else %}
+                        ￥ {{max_coupon.coffee_coupon_number}}
+                        {% endif %}
+                     </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12">
+                      <div class="col-sm-8 col-xs-8">
+                        实际支付：
+                      </div>
+                      <div class="col-sm-4 col-xs-4" id="settlement_price">
+                      </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+        <div id="cart" style="right: 0;left: 0;position: fixed;z-index: 999;box-shadow: 2px 2px 10px #ccc;bottom: 0px;background-color: whitesmoke;">
+            <div style="display: block;">
+                <div class="container"><div style="margin: 10px;">
+                    <div style="display:inline-block;;margin-top: 13px;">
+                        <p id="last_price"></p>
+                    </div>
+                    <div style="display:inline-block;float: right;">
+                        <input type="hidden" id="total">                    
+                        {% if max_coupon == "no_coupon" %}
+                        <input type="button" class="btn btn-warning" style="margin-top: 8px;" onclick="weixin_pay('no_coupon');" value="确认">
+                        {% else %}
+                        <input type="button" class="btn btn-warning" style="margin-top: 8px;" onclick="weixin_pay({{max_coupon.id}});" value="确认">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock%}

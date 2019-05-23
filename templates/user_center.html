@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block page_body %}
+    <div>
+    {% csrf_token %}
+        <div class="container">
+           <div class="row">
+             <div style="background-image:url('/static/image/weixin_background.png');background-repeat:no-repeat;height: 200px;">
+                <div class="text-center" style=" font-size: 20px; color: #f5f5f5; padding-top: 50px;">
+                    <div><img src="{{user.user_image}}" alt="咖啡N次方" width="60px"></div>
+                    <div style="margin-top: 10px;font-weight: bold;">{{user.nickname}}</div>
+                </div>
+             </div>
+           </div>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;"><a href="/coffee/my_coffee_coupon/">我的咖啡</a></span>
+              </div>
+           </div>
+          <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;"><a href="/coffee/coupon/">我的优惠券</a></span>
+              </div>
+           </div>
+           <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                           <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;"><a href="/coffee/historical_order/">历史订单</a></span>
+              </div>
+           </div>
+           <!--<h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;">邀请有礼</span>
+                          <span class="icon-chevron-right" style="float: right;"></span>
+              </div>
+           </div>
+            <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;">在线客服</span>
+                          <span class="icon-chevron-right" style="float: right;"></span>
+              </div>
+           </div>
+           <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;">申请发票</span>
+                          <span class="icon-chevron-right" style="float: right;"></span>
+              </div>
+           </div>--!>
+           {% if user.role == "admin" %}
+           <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;"><a href="/coffee/drinking_setting">饮品设置</a></span>
+              </div>
+           </div>
+           {% endif%}
+           <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin-top: 12px;margin-bottom: 12px;">
+               <div class="col-sm-12 col-xs-12">
+                          <span class="icon-align-justify"></span>
+                          <span style="margin-left: 8px;"><a href="/coffee/about_us">关于我们</a></span>
+              </div>
+           </div>
+ </div>
+    </div>
+{% endblock%}

@@ -1,0 +1,19 @@
+.bs-navhead-a{
+    margin-top: -10px;
+}
+.bs-nh-a{
+    margin-left: -20px;
+}
+.bs-navhead-a .bs-img{
+    width:40px;
+}
+.bs-ul-a{
+    font-weight:bold;
+}
+.bsul-img{
+    height:35px;
+}
+.footer .bs-foot{
+    color: #f5f5f5;
+    background-color:#3e454c;
+}

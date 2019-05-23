@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+  var res = {{res | safe}};
+  var html = "";
+  var openid = "{{user.openid}}";
+  for(var temp of res){
+    html = '<div class="row">'
+         + '<div class="col-sm-12 col-xs-12">'
+         + '<div class="col-sm-12 col-xs-12 thumbnail" style="box-shadow: 2px 2px 10px #ccc;margin-bottom: 10px;height:70px">'
+         + '<div style="display:inline-block">'
+         + '<img src="/static/image/coffee_images/'+temp.coffee_image+'" alt="产品图片" style="height:30px"></div>'
+         + '<div style="display:inline-block;font-size: initial;vertical-align: middle;margin-left: 10px;font-weight: bolder;margin-top:10px">'
+         + '<div>'+temp.coffee_name+'</div>'
+         + '<div style="font-size: smaller;">'+temp.coffee_en_name+'</div></div>'
+         + '<div style="display:inline-block;margin-left: 5px;font-weight: bold;">* '+temp.coffee_count+'</div>'
+         + '<div style="display:inline-block;float: right;margin-top: 16px;margin-right: 5px;"><input type="button" class="btn btn-warning btn-sm" value='+temp.btn_value+' id='+temp.coffee_id+' onclick="generate_extraction_code('+temp.coffee_id+','+temp.coffee_count+',1)"></div></div></div></div>';
+    $("#my_coffee").append(html);
+  }
+</script>
+{% endblock %}
+{% block page_body %}
+    <div>
+    {% csrf_token %}
+        <div class="container">
+            <div class="row">
+              <div style="background-image:url('/static/image/weixin_background.png');background-repeat:no-repeat;height: 200px;">
+                <div class="text-center" style=" font-size: 20px; color: #f5f5f5; padding-top: 50px;">
+                    <div><img src="{{user.user_image}}" alt="咖啡N次方" width="60px"></div>
+                    <div style="margin-top: 10px;font-weight: bold;">{{user.nickname}}</div>
+                </div>
+              </div>
+            </div>
+            <div id="my_coffee" style="margin-top: 30px;">
+            </div>
+        </div>
+    </div>
+{% endblock%}
+

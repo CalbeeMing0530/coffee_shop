@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+    var a = 6000;         //以毫秒为单位
+    var url = "/coffee/my_coffee_coupon/";
+    $("#redirect").href = url;
+    function fomtime(url)
+    {
+        a = a - 1000;
+        var b = new Date();
+        b.setTime(0);
+        var c = new Date();
+        c.setTime(a);
+        var seco1 = b.getSeconds();
+        var seco2 = c.getSeconds();
+        var seco = seco2-seco1;
+        $('#remain').text(seco);
+        if(seco <=0){
+            window.location.href = url;
+            //$(location).attr('href', url);
+            return;
+        }
+        setTimeout("fomtime('"+url+"')",1000);
+    }
+    fomtime(url);
+</script>
+{% endblock %}
+{% block page_body %}
+<div class="container">
+    <div style="margin-top:100px">
+        <center>
+           <div style="margin: 40px;">
+                <img src="/static/image/pay_success.png" style="width:140px">
+            </div>
+           <p>
+                支付成功!页面将在<span id="remain"></span>秒钟返回<a id="redirect" href="/coffee/my_coffee_coupon/">我的咖啡</a>页
+            </p>
+       </center>
+    </div>
+</div>
+{% endblock %}
+
+
