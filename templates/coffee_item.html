@@ -78,7 +78,7 @@ function show_all(coffee_id){
  			     {% if coffee.coffee_price ==  coffee.coffee_origin_price %}
                              	<span>￥{{coffee.coffee_price}}</span>
 			     {%else%}
-			     	<span>￥{{coffee.coffee_price}}</span>
+			     	<span style="color: red;">￥{{coffee.coffee_price}}</span>
 			     	<span style="text-decoration:line-through;margin-left:5px;color: darkgrey;font-size: small;"> ￥{{coffee.coffee_origin_price}}</span>
 			    	<span style="margin-left:10px" class="fa fa-caret-down"></span>
 			     {%endif%}
@@ -96,7 +96,7 @@ function show_all(coffee_id){
 			     {% if coffee.coffee_price ==  coffee.coffee_origin_price %}
                              	<span>￥{{coffee.coffee_price}}</span>
 			     {%else%}
-			     	<span>￥{{coffee.coffee_price}}</span>
+			     	<span style="color:red;">￥{{coffee.coffee_price}}</span>
 			     	<span style="text-decoration:line-through;margin-left:5px;color: darkgrey;font-size: small;"> ￥{{coffee.coffee_origin_price}}</span>
 			     {%endif%}
                            </div>
