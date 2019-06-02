@@ -147,7 +147,8 @@ def user_center(request):
     title = '我的主页'
     try:
         if settings.TEST:
-            return render_to_response(template,{'title': title}) 
+            user = User.objects.filter(openid='o7go2597XriiWy4cgMWG_y3y7Bag')[0]
+            return render_to_response(template,{'title': title,'user':user}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
                 access_token = request.session["access_token"]
@@ -416,6 +417,43 @@ def historical_order(request):
                     coffee_order_temp = coffee_order.objects.filter(openid=openid,valid=1).order_by('-trade_date')
                     user = User.objects.filter(openid=openid)[0]
                     return render_to_response(template,{'title': title,'coffee_order_temp':coffee_order_temp,'user':user}) 
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+#个人中心 - 历史订单
+def order_detail(request,order_id=None):
+    title = '订单明细'
+    template = 'order_detail.html'
+    try:
+        if settings.TEST:
+	    openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
+	    if order_id != 'no_id':
+                coffee_order_temp = coffee_order.objects.filter(order_id=order_id,valid=1)
+		count = 1
+	    else:
+		coffee_order_temp = coffee_order.objects.filter(valid=1).order_by('-trade_date')
+            	count =  coffee_order.objects.filter(valid=1).order_by('-trade_date').count()
+            user = User.objects.filter(openid=openid)[0]
+            return render_to_response(template,{'title': title,'coffee_order_temp':coffee_order_temp,'user':user,'count':count}) 
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+                access_token = request.session["access_token"]
+                if not access_token is None:
+                    openid = request.session["openid"]  
+		    if order_id != 'no_id':
+               	        coffee_order_temp = coffee_order.objects.filter(order_id=order_id,valid=1)
+		        count = 1
+	    	    else:
+			coffee_order_temp = coffee_order.objects.filter(valid=1).order_by('-trade_date')
+            	        count =  coffee_order.objects.filter(valid=1).order_by('-trade_date').count()
+                    user = User.objects.filter(openid=openid)[0]
+                    return render_to_response(template,{'title': title,'coffee_order_temp':coffee_order_temp,'user':user,'count':count}) 
             else:
                 url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
                 return HttpResponseRedirect(url)

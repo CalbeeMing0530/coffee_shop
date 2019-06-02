@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^edit_drinking/(?P<drinking_id>.+)$', views.edit_drinking),
     url(r'^edit_drinking_info/$', views.edit_drinking_info),
     url(r'^drinking_setting/$', views.drinking_setting),
+    url(r'^order_detail/(?P<order_id>.+)$', views.order_detail),
     url(r'^about_us/$', views.about_us),
 ]
 
