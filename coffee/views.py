@@ -35,7 +35,7 @@ def coffee_item(request):
     drinking_type = 'coffee'
     try:
         if settings.TEST:
-            print request.session.keys()
+            #print request.session.keys()
             #p = coffee(coffee_en_name="Iced Lemon Coffee",coffee_name="冰柠咖啡",coffee_price='12.00',activity_price='12.00',coffee_image='cold_Lemon_coffee.png',coffee_code='776',coffee_type=1)
             #p.save()
             #coffee.objects.filter(coffee_id=57).update(coffee_en_name='经典美式咖啡 * 1 + 澳白 * 1 + 抹茶拿铁咖啡 * 1 + 摩卡 * 1 + 卡布奇诺 * 1 + 拿铁 * 1')
@@ -50,6 +50,7 @@ def coffee_item(request):
             #coffee.objects.filter(coffee_id=67).update(coffee_en_name='冰柠咖啡 * 1 + 柠檬冰茶 * 1')
             #coffee.objects.filter(coffee_id=68).update(coffee_en_name='冰美式 * 1 + 冰卡布奇诺 * 1+冰拿铁 * 1')
             #coffee.objects.filter(coffee_id=68).update(coffee_en_name='冰美式 * 1 + 冰卡布奇诺 * 1+冰拿铁 * 1')
+            coffee_info = coffee.objects.filter(coffee_type=1).order_by('-order_by_id')
             return render_to_response(template,{'title':title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
@@ -64,6 +65,10 @@ def coffee_item(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 
 
@@ -87,6 +92,10 @@ def tea_item(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
        
 #套餐
@@ -109,6 +118,10 @@ def package(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 #寻找附近的咖啡吧
 def search_coffeebar_nearby(request):
@@ -147,6 +160,10 @@ def user_center(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 #个人中心 饮品设置
 def drinking_setting(request):
@@ -170,6 +187,10 @@ def drinking_setting(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 #编辑饮品页面
 def edit_drinking(request,drinking_id):
@@ -188,6 +209,10 @@ def edit_drinking(request,drinking_id):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 #编辑饮品信息
 @csrf_exempt
@@ -277,6 +302,10 @@ def my_coffee_coupon(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
            
 
@@ -363,6 +392,10 @@ def coupon(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 
 #个人中心 - 历史订单
@@ -388,6 +421,10 @@ def historical_order(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 
            
@@ -428,6 +465,10 @@ def about_us(request):
                 return HttpResponseRedirect(url)
     except:
         traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
 
 
 #存储购物车数据

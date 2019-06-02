@@ -8,3 +8,5 @@ logs
 *.swo
 .idea/
 .DS_Store
+wechat_site/settings.py
+start.sh
