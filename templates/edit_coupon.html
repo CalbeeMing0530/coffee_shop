@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+function edit(){
+    var coupon_price = $("#coupon_price").val();
+    var coupon_id = $("#coupon_id").val();
+    $.ajax({
+        type:"POST",
+        url:"/coffee/edit_coupon_operation/",
+        dataType:'json',
+        data: {'coupon_id':coupon_id,'coupon_price':coupon_price},
+        success:function(res){
+	  console.log(res);
+          if(res.status == "ok"){
+            alert("更新成功!");
+            //parent.location.reload();
+            location.href="/coffee/coupon_setting/";
+          }
+          else{
+            alert("请求出错!")
+          }
+        },
+        error:function(result){
+            alert("请求出错!")
+        }
+    });
+
+}
+</script>
+{% endblock %}
+{% block page_body %}
+<div class="container">
+    <form class="form-horizontal">
+            <div>
+                <center>
+                    <h4>编辑优惠券</h4>
+                    <input type="hidden" id="coupon_id" value="{{coupon_id}}">
+                    <table>
+                        <tr>
+                            <td><label>优惠券价格：</label></td>
+                            <td><input class="form-control" type="text" id="coupon_price" placeholder="例： 2.00" value="{{coupon.coupon_price}}"></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:20px">
+                        <input type='button' class="btn btn-success" onclick="edit();" value="更新">
+                    </div>
+                </center>
+            </div>
+    </form>
+</div>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+function add(){
+    var coupon_price = $("#coupon_price").val();
+    $.ajax({
+        type:"POST",
+        url:"/coffee/add_coupon_operation/",
+        dataType:'json',
+        data: {'coupon_price':coupon_price},
+        success:function(res){
+	  console.log(res);
+          if(res.status == "ok"){
+            alert("增添成功!");
+            //parent.location.reload();
+            location.href="/coffee/coupon_setting/";
+          }
+          else{
+            alert("请求出错!")
+          }
+        },
+        error:function(result){
+            alert("请求出错!")
+        }
+    });
+
+}
+</script>
+{% endblock %}
+{% block page_body %}
+<div class="container">
+    <form class="form-horizontal">
+            <div>
+                <center>
+                    <h4>增添优惠券</h4>
+                    <table>
+                        <tr>
+                            <td><label>优惠券价格：</label></td>
+                            <td><input class="form-control" type="text" id="coupon_price" placeholder="例： 2.00"></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:20px">
+                        <input type='button' class="btn btn-success" onclick="add();" value="确定">
+                    </div>
+                </center>
+            </div>
+    </form>
+</div>
+{% endblock %}
+
+
+

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+{% endblock%}
+{% block page_body %}
+    <div>
+    {% csrf_token %}
+        <div class="container">
+            <div class="row">
+               <div style="background-image:url('/static/image/weixin_background.png');background-repeat:no-repeat;height: 200px;">
+                  <div class="text-center" style=" font-size: 20px; color: #f5f5f5; padding-top: 50px;">
+                    <div><img src="{{user.user_image}}" alt="咖啡N次方" width="60px"></div>
+                    <div style="margin-top: 10px;font-weight: bold;">{{user.nickname}}</div>
+                  </div>
+               </div>
+            </div>
+	    <div class="row" style="margin-top: 20px;">
+              <div class="col-xs-12 col-sm-12">
+		<p style="margin-bottom: 20px;font-size: larger;">分发优惠券</p>
+                {% for coupon in coupons %}
+		<div class="col-xs-4 col-sm-4">
+		   <input type="button" style="width: 80px;margin: 10px;" class="btn btn-warning" onclick="dispatch_coupon()" value="{{coupon.coupon_price}}">
+ 		</div>
+                {% endfor %}
+	      </div>
+           </div>
+          <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
+           <div class="row" style="margin: 1px;line-height: 1.8em;margin-top: 20px;">
+             	<div style="display: inline-block;">
+                     <input class="form-control" type="text" id="order_id" placeholder="用户昵称">
+                 </div>
+                 <div style="display: inline-block;">
+                      <input  id="search_order" type="button" class="btn btn-default btn-sm" style="margin-left: 10px;margin-bottom: 3px;" value="搜索" />
+                 </div>
+           </div>
+           <div style="margin: 1px;line-height: 1.8em;margin-top: 15px;">
+		 <span>共211条信息</span>
+           </div>
+        </div>
+{% endblock%}
+
+

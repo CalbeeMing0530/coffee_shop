@@ -33,5 +33,13 @@ urlpatterns = [
     url(r'^drinking_setting/$', views.drinking_setting),
     url(r'^order_detail/(?P<order_id>.+)$', views.order_detail),
     url(r'^about_us/$', views.about_us),
+    url(r'^dispatch_coupon/$', views.dispatch_coupon),
+    url(r'^coupon_setting/$', views.coupon_setting),
+    url(r'^add_coupon/$', views.add_coupon),
+    url(r'^add_coupon_operation/$', views.add_coupon_operation),
+    url(r'^edit_coupon/(?P<id>.+)$', views.edit_coupon),
+    url(r'^edit_coupon_operation/$', views.edit_coupon_operation),
+    url(r'^delete_coupon_operation/$', views.delete_coupon_operation),
+
 ]
 

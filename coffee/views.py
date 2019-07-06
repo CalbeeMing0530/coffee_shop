@@ -13,7 +13,7 @@ from utils import wechat
 from django.conf import settings
 from utils import http_utils
 from users.models import User
-from coffee.models import coffee,coffee_trade,coffee_code,coffee_order,coffee_coupon
+from coffee.models import coffee,coffee_trade,coffee_code,coffee_order,coffee_coupon,Coupon
 from wechat_sdk.wechatAPI import WechatOrder,WechatAPI,WechatPayAPI
 from config import params
 
@@ -464,8 +464,156 @@ def order_detail(request,order_id=None):
         return render_to_response(template,{'title': title}) 
 
 
+#个人中心 - 优惠券发放
+def dispatch_coupon(request):
+    title = '优惠券发放'
+    template = 'dispatch_coupon.html'
+    try:
+        if settings.TEST:
+	    openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
+	    template = 'dispatch_coupon.html'
+	    #user
+	    user = User.objects.filter(openid=openid)[0]
+            #coupon
+	    coupons = Coupon.objects.all()
+            #user use coupon
+            #coffee_coupon_temp = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" group by coffee_coupon_number')
+            return render_to_response(template,{'title': title,'user':user,'coupons':coupons}) 
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+                access_token = request.session["access_token"]
+                if not access_token is None:
+                    openid = request.session["openid"]  
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
 
-           
+#个人中心 - 添加优惠券页面
+def add_coupon(request):
+    try:
+        if settings.TEST: 
+    	    title = '添加优惠券' 
+    	    template = "add_coupon.html"
+            return render_to_response(template,{'title': title})
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+     	    	title = '添加优惠券' 
+    	    	template = "add_coupon.html"
+            	return render_to_response(template,{'title': title})
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+
+#个人中心 - 添加优惠券操作
+@csrf_exempt
+def add_coupon_operation(request):
+    res = {}
+    try:
+    	data = request.POST
+    	_coupon_price = data.get('coupon_price')
+	coupon = Coupon(coupon_price=_coupon_price)
+	coupon.save()
+	res["status"] = "ok"	
+        return HttpResponse(json.dumps(res))
+    except:
+	res["status"] = "error"
+        traceback.print_exc()
+        return HttpResponse(json.dumps(res))
+   
+#个人中心 - 编辑优惠券页面
+def edit_coupon(request,id):
+    try:
+        if settings.TEST: 
+    	    title = '编辑优惠券' 
+    	    template = "edit_coupon.html"
+	    coupon = Coupon.objects.filter(coupon_id=int(id))
+	    print "@@@@@@@@@@@@",id
+            return render_to_response(template,{'title': title,'coupon':coupon,'coupon_id':id})
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+     	    	title = '编辑优惠券' 
+    	    	template = "edit_coupon.html"
+ 	    	coupon = Coupon.objects.filter(coupon_id=int(id))
+            	return render_to_response(template,{'title': title,'coupon':coupon,'coupon_id':id})
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+#个人中心 - 编辑优惠券操作
+@csrf_exempt
+def edit_coupon_operation(request):
+    res = {}
+    try:
+    	data = request.POST
+    	_coupon_price = data.get('coupon_price')
+    	_coupon_id = data.get('coupon_id')
+	print "--------------------",_coupon_id,_coupon_price,type(_coupon_id),type(_coupon_price)
+	Coupon.objects.filter(coupon_id=int(_coupon_id)).update(coupon_price=str(_coupon_price))
+	res["status"] = "ok"	
+        return HttpResponse(json.dumps(res))
+    except:
+	res["status"] = "error"
+        traceback.print_exc()
+        return HttpResponse(json.dumps(res))
+
+#个人中心 - 删除优惠券操作
+@csrf_exempt
+def delete_coupon_operation(request):
+    res = {}
+    try:
+    	data = request.POST
+    	_coupon_id = data.get('coupon_id')
+	Coupon.objects.filter(coupon_id=int(_coupon_id)).delete()
+	res["status"] = "ok"	
+        return HttpResponse(json.dumps(res))
+    except:
+	res["status"] = "error"
+        traceback.print_exc()
+        return HttpResponse(json.dumps(res))
+ 
+
+#个人中心 - 优惠券设置
+def coupon_setting(request):
+    title = '优惠券设置'
+    template = 'coupon_setting.html'
+    try:
+        if settings.TEST:
+	    openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
+	    template = 'coupon_setting.html'
+	    user = User.objects.filter(openid=openid)[0]
+	    coupons = Coupon.objects.all()
+            return render_to_response(template,{'title': title,'user':user,'coupons':coupons}) 
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+                access_token = request.session["access_token"]
+                if not access_token is None:
+                    openid = request.session["openid"]  
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+          
 
 #个人中心 - 邀请有礼
 def invited_gift(request):
@@ -817,7 +965,8 @@ def weixin_pay(request):
                 trade_type = params.TRADE_TYPE
                 #制作order_id
                 rand = random.randint(100000, 999999)
-                out_trade_no = '20198888' + str(rand)
+		rand2 = random.randint(0000,8888)
+                out_trade_no = '2019'+ str(rand2) + str(rand)
                 
                 #存order_id作为session，再存订单表时会用到
                 request.session[open_id] = str(out_trade_no)

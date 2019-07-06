@@ -54,4 +54,6 @@ class coffee_code(models.Model):
     coffee_id = models.IntegerField()
     coffee_code_order_id = models.CharField(max_length=255)
 
- 
+class Coupon(models.Model):
+    coupon_id = models.AutoField(primary_key=True)
+    coupon_price = models.CharField(max_length=255,blank=False)
