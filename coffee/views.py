@@ -24,6 +24,7 @@ import traceback
 import random,string
 import redis
 import traceback
+import datetime,time
 
 
 
@@ -250,9 +251,9 @@ def my_coffee_coupon(request):
     title = '我的咖啡'
     try:
         if settings.TEST:
-            coffee_infos = coffee_trade.objects.raw('select count(*) as coffee_count,coffee_id,id from coffee_coffee_trade where openid="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" and flag=0 group by coffee_id')
+            coffee_infos = coffee_trade.objects.raw('select count(*) as coffee_count,coffee_id,id from coffee_coffee_trade where openid="o7go2597XriiWy4cgMWG_y3y7Bag" and flag=0 group by coffee_id')
             res = [] 
-            openid = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
+            openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
             for coffee_info in coffee_infos:
                 coffee_temp = coffee.objects.get(coffee_id=coffee_info.coffee_id)
                 coffee_dict = {}
@@ -317,9 +318,9 @@ def coupon(request):
     try:
         if settings.TEST:
             #获取代金券
-            openid = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
+            openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
             #获取商家赠送代金券
-            coupon_infos = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid ="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" group by coffee_coupon_number')
+            coupon_infos = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid ="o7go2597XriiWy4cgMWG_y3y7Bag" group by coffee_coupon_number')
             res_coupon = []
             for coupon_info in coupon_infos:
                 coupon_dict = {}
@@ -329,7 +330,7 @@ def coupon(request):
                 res_coupon.append(coupon_dict)
  
             #获取饮品卷 coffee_trade表中flag=1代表为商家赠送的饮品卷
-            coffee_infos = coffee_trade.objects.raw('select count(*) as coffee_count,coffee_id,id from coffee_coffee_trade where openid="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" and flag=1 group by coffee_id')
+            coffee_infos = coffee_trade.objects.raw('select count(*) as coffee_count,coffee_id,id from coffee_coffee_trade where openid="o7go2597XriiWy4cgMWG_y3y7Bag" and flag=1 group by coffee_id')
             res = [] 
             for coffee_info in coffee_infos:
                 coffee_temp = coffee.objects.get(coffee_id=coffee_info.coffee_id)
@@ -347,6 +348,7 @@ def coupon(request):
                     btn_value = "获取提货码"
                 coffee_dict['btn_value'] = btn_value
                 res.append(coffee_dict)
+	    
             user = User.objects.filter(openid=openid)[0]
             return render_to_response(template,{'title': title,'res':json.dumps(res),'user':user,'res_coupon':json.dumps(res_coupon)}) 
         else:
@@ -405,7 +407,7 @@ def historical_order(request):
     template = 'historical_order.html'
     try:
         if settings.TEST:
-            openid = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
+            openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
             coffee_order_temp = coffee_order.objects.filter(openid=openid,valid=1).order_by('-trade_date')
             user = User.objects.filter(openid=openid)[0]
             return render_to_response(template,{'title': title,'coffee_order_temp':coffee_order_temp,'user':user}) 
@@ -474,16 +476,52 @@ def dispatch_coupon(request):
 	    template = 'dispatch_coupon.html'
 	    #user
 	    user = User.objects.filter(openid=openid)[0]
-            #coupon
+	    res = {}
 	    coupons = Coupon.objects.all()
-            #user use coupon
-            #coffee_coupon_temp = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" group by coffee_coupon_number')
-            return render_to_response(template,{'title': title,'user':user,'coupons':coupons}) 
+	    #user use coupon 
+	    users = User.objects.all()
+	    user_coupon = []
+	    for v_user in users:
+	        _coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+v_user.openid+'" group by coffee_coupon_number')	
+		user_use_coupon = {}
+		for _coffee_coupon in _coffee_coupons:
+		    _user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+	     	    nick_name = _user.nickname
+		    phone_number = _user.phone_number
+		    coupon_price = _coffee_coupon.coffee_coupon_number
+		    user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+		    user_use_coupon["nickname"] = nick_name
+		    user_use_coupon["phone_number"] = phone_number
+		user_coupon.append(user_use_coupon)
+	    res["data"] = user_coupon
+	    return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
                 access_token = request.session["access_token"]
                 if not access_token is None:
                     openid = request.session["openid"]  
+ 	            template = 'dispatch_coupon.html'
+	            #user
+	            user = User.objects.filter(openid=openid)[0]
+	            res = {}
+		    coupons = Coupon.objects.all()
+	            #user use coupon 
+	            users = User.objects.all()
+	            user_coupon = []
+	            for v_user in users:
+	                _coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+v_user.openid+'" group by coffee_coupon_number')	
+                    	user_use_coupon = {}
+	            	for _coffee_coupon in _coffee_coupons:
+	            	    _user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+	            	    nick_name = _user.nickname
+	            	    phone_number = _user.phone_number
+	            	    coupon_price = _coffee_coupon.coffee_coupon_number
+	            	    user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+	            	    user_use_coupon["nickname"] = nick_name
+	            	    user_use_coupon["phone_number"] = phone_number
+	            	user_coupon.append(user_use_coupon)
+	            res["data"] = user_coupon
+                    return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)})
             else:
                 url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
                 return HttpResponseRedirect(url)
@@ -514,6 +552,48 @@ def add_coupon(request):
         title = '获取数据失败'
         return render_to_response(template,{'title': title}) 
 
+#分发优惠券编辑界面
+def dispatch_coupon_operation(request,coupon_price):
+    template = 'dispatch_coupon_operation.html'
+    title = '优惠券发放数量'
+    try:
+        if settings.TEST: 
+            return render_to_response(template,{'title': title,'coupon_price':coupon_price})
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+                return render_to_response(template,{'title': title,'coupon_price':coupon_price})
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+#个人中心 - 分发优惠券到所有用户
+@csrf_exempt
+def dispatch_coupon_to_users(request):
+    res = {}
+    try:
+    	data = request.POST
+    	_coupon_price = data.get('coupon_price')
+    	_coupon_count = data.get('coupon_count')
+	#分发优惠券到所有用户
+	users = User.objects.filter(is_member=1)
+	for user in users:
+	    a = 0
+	    while a < int(_coupon_count):
+	    	coupon = coffee_coupon(openid=user.openid,coffee_coupon_number=str(""+_coupon_price+""),user_coupon_validity_date=timezone.now() + datetime.timedelta(days=30))
+            	coupon.save()
+ 		a += 1
+	res["status"] = "ok"	
+        return HttpResponse(json.dumps(res))
+    except:
+	res["status"] = "error"
+        traceback.print_exc()
+        return HttpResponse(json.dumps(res))
+ 
 
 #个人中心 - 添加优惠券操作
 @csrf_exempt
@@ -538,7 +618,6 @@ def edit_coupon(request,id):
     	    title = '编辑优惠券' 
     	    template = "edit_coupon.html"
 	    coupon = Coupon.objects.filter(coupon_id=int(id))
-	    print "@@@@@@@@@@@@",id
             return render_to_response(template,{'title': title,'coupon':coupon,'coupon_id':id})
         else:
             if 'access_token' in request.session and 'openid' in request.session:
@@ -563,7 +642,6 @@ def edit_coupon_operation(request):
     	data = request.POST
     	_coupon_price = data.get('coupon_price')
     	_coupon_id = data.get('coupon_id')
-	print "--------------------",_coupon_id,_coupon_price,type(_coupon_id),type(_coupon_price)
 	Coupon.objects.filter(coupon_id=int(_coupon_id)).update(coupon_price=str(_coupon_price))
 	res["status"] = "ok"	
         return HttpResponse(json.dumps(res))
@@ -882,6 +960,119 @@ def modify_cart_data(request):
         res['second_level_cart_info'] = ""
         return HttpResponse(res)
 
+
+#个人中心 - 查询具体某用户使用coupon情况
+def coupon_detail(request,coupon_user=None):
+    title = '用户券使用明细'
+    template = 'dispatch_coupon.html'
+    try:
+        if settings.TEST:
+	    openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
+	    if coupon_user != 'no_coupon':
+		#user
+		user = User.objects.filter(openid=openid)[0]
+		res = {}
+		coupons = Coupon.objects.all()
+		#user use coupon 
+		coupon_user = User.objects.filter(phone_number=coupon_user)[0]
+		print "@@@@@@@@@@@@@@2",coupon_user.openid
+		user_coupon = []
+		_coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+coupon_user.openid+'" group by coffee_coupon_number')	
+		user_use_coupon = {}
+		for _coffee_coupon in _coffee_coupons:
+		   _user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+		   nick_name = _user.nickname
+		   phone_number = _user.phone_number
+		   coupon_price = _coffee_coupon.coffee_coupon_number
+		   user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+		   user_use_coupon["nickname"] = nick_name
+		   user_use_coupon["phone_number"] = phone_number
+		user_coupon.append(user_use_coupon)
+		res["data"] = user_coupon
+		return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)})
+	    else:
+	 	#user
+		user = User.objects.filter(openid=openid)[0]
+		res = {}
+		coupons = Coupon.objects.all()
+		#user use coupon 
+		users = User.objects.all()
+		user_coupon = []
+		for v_user in users:
+		    _coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+v_user.openid+'" group by coffee_coupon_number')	
+		    user_use_coupon = {}
+		    for _coffee_coupon in _coffee_coupons:
+	         	_user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+	         	nick_name = _user.nickname
+	         	phone_number = _user.phone_number
+	         	coupon_price = _coffee_coupon.coffee_coupon_number
+	         	user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+	         	user_use_coupon["nickname"] = nick_name
+	         	user_use_coupon["phone_number"] = phone_number
+		    user_coupon.append(user_use_coupon)
+		res["data"] = user_coupon
+		return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)}) 
+        else:
+            if 'access_token' in request.session and 'openid' in request.session:
+                access_token = request.session["access_token"]
+                if not access_token is None:
+                    openid = request.session["openid"]  
+		    if coupon_user != 'no_coupon':
+			#user
+			user = User.objects.filter(openid=openid)[0]
+			res = {}
+			coupons = Coupon.objects.all()
+			#user use coupon 
+			user_coupon = []
+			_coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+openid+'" group by coffee_coupon_number')	
+			user_use_coupon = {}
+			for _coffee_coupon in _coffee_coupons:
+			   _user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+			   nick_name = _user.nickname
+			   phone_number = _user.phone_number
+			   coupon_price = _coffee_coupon.coffee_coupon_number
+			   user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+			   user_use_coupon["nickname"] = nick_name
+			   user_use_coupon["phone_number"] = phone_number
+			   user_coupon.append(user_use_coupon)
+			res["data"] = user_coupon
+			return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)})
+		    else:
+			#user
+			user = User.objects.filter(openid=openid)[0]
+			res = {}
+			coupons = Coupon.objects.all()
+			#user use coupon 
+			users = User.objects.all()
+			user_coupon = []
+			for v_user in users:
+			    _coffee_coupons = coffee_coupon.objects.raw('select id,openid,coffee_coupon_number,count(*) as coupon_count,user_coupon_validity_date from coffee_coffee_coupon where openid="'+v_user.openid+'" group by coffee_coupon_number')	
+			    user_use_coupon = {}
+			    for _coffee_coupon in _coffee_coupons:
+			        _user = User.objects.filter(openid=_coffee_coupon.openid)[0]
+				nick_name = _user.nickname
+				phone_number = _user.phone_number
+				coupon_price = _coffee_coupon.coffee_coupon_number
+				user_use_coupon[""+coupon_price+""] = _coffee_coupon.coupon_count
+				user_use_coupon["nickname"] = nick_name
+				user_use_coupon["phone_number"] = phone_number
+			    user_coupon.append(user_use_coupon)
+			res["data"] = user_coupon
+			return render_to_response(template,{'title': title,'user':user,'coupons':coupons,'results':json.dumps(res)}) 
+            else:
+                url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+                return HttpResponseRedirect(url)
+    except:
+        traceback.print_exc()
+        template = 'error.html'
+        title = '获取数据失败'
+        return render_to_response(template,{'title': title}) 
+
+
+
+
+
+
 def balance_cart_stuff(request):
     try:
         first_level_cart_info = request.session['first_level_cart_info']
@@ -900,8 +1091,8 @@ def balance_cart_stuff(request):
 
         if settings.TEST:
             #优惠卷抵扣,判断是否有优惠卷
-            openid = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
-            coffee_coupon_temp = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid="ot3LK1UtJBHJ7RFMgQnzYZS47fd4" group by coffee_coupon_number')
+            openid = 'o7go2597XriiWy4cgMWG_y3y7Bag'
+            coffee_coupon_temp = coffee_coupon.objects.raw('select count(*) as coupon_count,coffee_coupon_number,id from coffee_coffee_coupon where openid="o7go2597XriiWy4cgMWG_y3y7Bag" group by coffee_coupon_number')
             #组合为字典
             res_coupon_number = {}
             for coupon_temp in coffee_coupon_temp:
@@ -1016,7 +1207,7 @@ def weixin_pay_success(request,last_price,coupon_id):
             if 'second_level_cart_info' in request.session and 'first_level_cart_info' in request.session:
                 #存trade表
                 cart_info =  request.session['second_level_cart_info']
-                open_id = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
+                open_id = 'o7go2597XriiWy4cgMWG_y3y7Bag'
                 #遍历session中饮品信息，按次存放
                 for cart in cart_info.keys():
                     a = 0
@@ -1226,7 +1417,7 @@ def get_code(request,coffee_id,coffee_count,type):
     template = 'extraction_code.html'
     try:
         if settings.TEST:
-            openid_temp = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'
+            openid_temp = 'o7go2597XriiWy4cgMWG_y3y7Bag'
             coffee_temp = coffee.objects.get(coffee_id=coffee_id)
             #type=1为我的咖啡卷，type=2为我的优惠卷
             if int(type) == 1:
@@ -1265,7 +1456,7 @@ def generate_extraction_code(request,coffee_id,coffee_count,type):
     template = 'extraction_code.html'
     try:
         if settings.TEST:
-            openid_temp = 'ot3LK1UtJBHJ7RFMgQnzYZS47fd4'    
+            openid_temp = 'o7go2597XriiWy4cgMWG_y3y7Bag'    
             coffee_temp = coffee.objects.get(coffee_id=coffee_id)
             coffee_en_name = coffee_temp.coffee_en_name
             coffee_name = coffee_temp.coffee_name

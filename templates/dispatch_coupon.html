@@ -3,6 +3,39 @@
 {% block styles %}
 {% endblock %}
 {% block scripts %}
+<script>
+    var results = '{{results | safe}}';
+    results = JSON.parse(results)  
+    var html = "<div class='row' style='margin: 1px;line-height: 1.8em;'>";
+    for(var user_use_coupon of results.data){
+	if(user_use_coupon.nickname != undefined){
+    	   html += "<h1 style='height: 1px;background-color: #ddd;margin: 0 auto;margin-bottom: 10px;margin-top: 10px;'></h1>"
+	   var b = Object.keys(user_use_coupon)
+           for(var b in user_use_coupon){
+	      html += "<div>"+b+" : "+user_use_coupon[b]+"</div>";
+	   }
+	}
+    }
+    $("#user_use_coupon").append(html);
+</script>
+<script>
+$("#search_using_coupon").click(function(){
+    var coupon_user = $("#coupon_user").val();
+    if(coupon_user == ""){
+       url = "/coffee/coupon_detail/no_coupon";
+    }
+    else{
+       url = "/coffee/coupon_detail/" + coupon_user;
+    }
+    location.href = url;
+});
+</script>
+<script>
+function dispatch_coupon(coupon_price){
+     url = "/coffee/dispatch_coupon_operation/" + coupon_price;
+     location.href = url
+}
+</script>
 {% endblock%}
 {% block page_body %}
     <div>
@@ -21,23 +54,23 @@
 		<p style="margin-bottom: 20px;font-size: larger;">分发优惠券</p>
                 {% for coupon in coupons %}
 		<div class="col-xs-4 col-sm-4">
-		   <input type="button" style="width: 80px;margin: 10px;" class="btn btn-warning" onclick="dispatch_coupon()" value="{{coupon.coupon_price}}">
+		   <input type="button" style="width: 80px;margin: 10px;" class="btn btn-warning" onclick="dispatch_coupon('{{coupon.coupon_price}}')" value="{{coupon.coupon_price}}">
  		</div>
                 {% endfor %}
 	      </div>
            </div>
           <h1 style="height: 1px;background-color: #ddd;margin: 0 auto;"></h1>
            <div class="row" style="margin: 1px;line-height: 1.8em;margin-top: 20px;">
+		<p style="margin-bottom: 20px;font-size: larger;">优惠券使用查询</p>
              	<div style="display: inline-block;">
-                     <input class="form-control" type="text" id="order_id" placeholder="用户昵称">
+                     <input class="form-control" type="text" id="coupon_user" placeholder="请输入用户手机号码">
                  </div>
                  <div style="display: inline-block;">
-                      <input  id="search_order" type="button" class="btn btn-default btn-sm" style="margin-left: 10px;margin-bottom: 3px;" value="搜索" />
+                      <input  id="search_using_coupon" type="button" class="btn btn-default btn-sm" style="margin-left: 10px;margin-bottom: 3px;" value="搜索" />
                  </div>
            </div>
-           <div style="margin: 1px;line-height: 1.8em;margin-top: 15px;">
-		 <span>共211条信息</span>
-           </div>
+	   <div id="user_use_coupon"> 
+	   </div>
         </div>
 {% endblock%}
 

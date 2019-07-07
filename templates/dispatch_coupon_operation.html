@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block styles %}
+{% endblock %}
+{% block scripts %}
+<script>
+function confirm(){
+    var coupon_count = $("#coupon_count").val();
+    var coupon_price = $("#coupon_price").val();
+    $("#loading").css("display","block");
+    $.ajax({
+        type:"POST",
+        url:"/coffee/dispatch_coupon_to_users/",
+        dataType:'json',
+        data: {'coupon_count':coupon_count,'coupon_price':coupon_price},
+        success:function(res){
+          if(res.status == "ok"){
+    	    $("#loading").css("display","contents");
+            alert("分发成功!");
+            //parent.location.reload();
+            location.href="/coffee/dispatch_coupon/";
+          }
+          else{
+            alert("请求出错!")
+          }
+        },
+        error:function(result){
+            alert("请求出错!")
+        }
+    });
+
+}
+</script>
+{% endblock %}
+{% block page_body %}
+<div class="container">
+    <form class="form-horizontal">
+            <div>
+                <center>
+                    <h4>{{title}}</h4>
+                    <input type="hidden" id="coupon_price" value="{{coupon_price}}">
+                    <table>
+                        <tr>
+                            <td><label>数量：</label></td>
+                            <td><input class="form-control" type="text" id="coupon_count" placeholder="例： 2"></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:20px">
+                        <input type='button' class="btn btn-success" onclick="confirm();" value="确定">
+                    </div>
+ 		    <div>
+			<img id="loading" src="/static/image/loading.png" style="display: contents;width: 30px;margin-top: 50px;"/>
+                    </div>
+                </center>
+            </div>
+    </form>
+</div>
+{% endblock %}
+
+
+
+
