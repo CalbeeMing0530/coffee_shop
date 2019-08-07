@@ -50,7 +50,16 @@ function edit_drinking(id){
                   现价
                 </th>
                 <th>
+  		  促销状态
+                </th>
+                <th>
+		  限购杯数
+                </th>
+                <th>
                   浓度
+                </th>
+                <th>
+  		  状态
                 </th>
                 <th>
                   管理
@@ -67,7 +76,10 @@ function edit_drinking(id){
                     <td style="white-space: normal;overflow: hidden;text-overflow: ellipsis;width: 100px;">{{coffee.coffee_en_name}}</td>
                     <td>{{coffee.coffee_origin_price}}</td>
                     <td>{{coffee.coffee_price}}</td>
+                    <td>{{coffee.is_saled}}</td>
+                    <td>{{coffee.limit_count}}</td>
                     <td>{{coffee.coffee_concentration}}</td>
+                    <td>{{coffee.status}}</td>
                     <td><input type="button" class="btn btn-success btn-sm" value="编辑" onclick="edit_drinking({{coffee.coffee_id}});" /></td>
                  </tr>
                {% endfor%}
