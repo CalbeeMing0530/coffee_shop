@@ -11,13 +11,16 @@ function update(){
     var coffee_price = $("#coffee_price").val();
     var coffee_origin_price = $("#coffee_origin_price").val();
     var coffee_concentration = $("#coffee_concentration").val();
+    var coffee_is_saled = $("#coffee_is_saled").val();
+    var coffee_limit_count = $("#coffee_limit_count").val();
+    var coffee_status = $("#coffee_status").val();
     var order_by_id = $("#order_by_id").val();
     //修改饮品
     $.ajax({
         type:"POST",
         url:"/coffee/edit_drinking_info/",
         dataType:'json',
-        data: {'dringking_id':dringking_id,'coffee_name':coffee_name,'coffee_en_name':coffee_en_name,'coffee_price':coffee_price,'coffee_concentration':coffee_concentration,'coffee_origin_price':coffee_origin_price,'order_by_id':order_by_id},
+        data: {'dringking_id':dringking_id,'coffee_name':coffee_name,'coffee_en_name':coffee_en_name,'coffee_price':coffee_price,'coffee_concentration':coffee_concentration,'coffee_is_saled':coffee_is_saled,'coffee_origin_price':coffee_origin_price,'coffee_status':coffee_status,'order_by_id':order_by_id,'coffee_limit_count':coffee_limit_count},
         success:function(res){
           if(res.status == "ok"){
             alert("修改成功!");
@@ -64,9 +67,21 @@ function update(){
                             <td><label>饮品现价:</label></td>
                             <td><input class="form-control" type="text" id="coffee_price" value="{{coffee_info.coffee_price}}"></td>
                         </tr>
+                        <tr>
+                            <td><label>促销状态:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_is_saled" value="{{coffee_info.is_saled}}"></td>
+                        </tr>
+                        <tr>
+                            <td><label>限购杯数:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_limit_count" value="{{coffee_info.limit_count}}"></td>
+                        </tr>
                          <tr>
                             <td><label>饮品浓度:</label></td>
                             <td><input class="form-control" type="text" id="coffee_concentration" value="{{coffee_info.coffee_concentration}}"></td>
+                        </tr>
+                        <tr>
+                            <td><label>饮品状态:</label></td>
+                            <td><input class="form-control" type="text" id="coffee_status" placeholder="例 disable or enable" value="{{coffee_info.status}}"></td>
                         </tr>
                     </table>
                     <div style="margin-top:20px">

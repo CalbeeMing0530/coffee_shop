@@ -11,7 +11,7 @@ function pacakge(){
 }
 
 
-function add_cart(drinking_id,drinking_name,drinking_price){
+function add_cart(drinking_id,drinking_name,drinking_price,drinking_is_saled,drinking_limit_count){
    var html = "";
    var html_info = "";
    var index = 1;
@@ -20,7 +20,7 @@ function add_cart(drinking_id,drinking_name,drinking_price){
         type:"POST",
         url:"/coffee/store_cart_data/",
         dataType:'json',
-        data: {'index':index,'drinking_price':drinking_price,'drinking_name':drinking_name,'drinking_id':drinking_id },
+        data: {'index':index,'drinking_price':drinking_price,'drinking_name':drinking_name,'drinking_id':drinking_id ,'drinking_is_saled':drinking_is_saled,'drinking_limit_count':drinking_limit_count},
         success:function(res){
             if(res.status == "ok"){
                 $("#cart").empty();

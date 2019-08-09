@@ -51,13 +51,13 @@ def coffee_item(request):
             #coffee.objects.filter(coffee_id=67).update(coffee_en_name='冰柠咖啡 * 1 + 柠檬冰茶 * 1')
             #coffee.objects.filter(coffee_id=68).update(coffee_en_name='冰美式 * 1 + 冰卡布奇诺 * 1+冰拿铁 * 1')
             #coffee.objects.filter(coffee_id=68).update(coffee_en_name='冰美式 * 1 + 冰卡布奇诺 * 1+冰拿铁 * 1')
-            coffee_info = coffee.objects.filter(coffee_type=1).order_by('-order_by_id')
+            coffee_info = coffee.objects.filter(coffee_type=1,status='enable').order_by('-order_by_id')
             return render_to_response(template,{'title':title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
                 access_token = request.session["access_token"]
                 if not access_token is None:
-                    coffee_info = coffee.objects.filter(coffee_type=1).order_by('-order_by_id')
+                    coffee_info = coffee.objects.filter(coffee_type=1,status='enable').order_by('-order_by_id')
                     #p = coffee(coffee_en_name="Iced Americano(no sugar)",coffee_name="冰美式(无糖)",coffee_price='8.00',coffee_origin_price='8.00',coffee_image='hot_matcha.png',coffee_code='931',coffee_type=1)
                     #p.save()
                     return render_to_response(template,{'title':title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
@@ -80,13 +80,13 @@ def tea_item(request):
     drinking_type = 'tea'
     try:
         if settings.TEST:
-            coffee_info = coffee.objects.filter(coffee_type=2).order_by('-order_by_id')
+            coffee_info = coffee.objects.filter(coffee_type=2,status='enable').order_by('-order_by_id')
             return render_to_response(template,{'title': title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
                 access_token = request.session["access_token"]
                 if not access_token is None:
-                    coffee_info = coffee.objects.filter(coffee_type=2).order_by('-order_by_id')
+                    coffee_info = coffee.objects.filter(coffee_type=2,status='enable').order_by('-order_by_id')
                     return render_to_response(template,{'title':title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
             else:
                 url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
@@ -106,13 +106,13 @@ def package(request):
     drinking_type = 'package'
     try:
         if settings.TEST:
-            coffee_info = coffee.objects.filter(coffee_type=3).order_by('-order_by_id')
+            coffee_info = coffee.objects.filter(coffee_type=3,status='enable').order_by('-order_by_id')
             return render_to_response(template,{'title': title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
         else:
             if 'access_token' in request.session and 'openid' in request.session:
                 access_token = request.session["access_token"]
                 if not access_token is None:
-                    coffee_info = coffee.objects.filter(coffee_type=3).order_by('-order_by_id')
+                    coffee_info = coffee.objects.filter(coffee_type=3,status='enable').order_by('-order_by_id')
                     return render_to_response(template,{'title':title,'coffee_info':coffee_info,'drinking_type':drinking_type}) 
             else:
                 url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
@@ -226,7 +226,10 @@ def edit_drinking_info(request):
         coffee_en_name = data.get('coffee_en_name')
         coffee_price = data.get('coffee_price')
         coffee_origin_price = data.get('coffee_origin_price')
+        coffee_is_saled = data.get('coffee_is_saled')
+        coffee_limit_count = data.get('coffee_limit_count')
         coffee_concentration = data.get('coffee_concentration')
+        coffee_status = data.get('coffee_status')
         order_by_id = data.get('order_by_id')
         coffee_exist = coffee.objects.filter(coffee_id=dringking_id).count()
         res = {}
@@ -236,14 +239,20 @@ def edit_drinking_info(request):
             coffee.objects.filter(coffee_id=dringking_id).update(coffee_en_name=coffee_en_name)
             coffee.objects.filter(coffee_id=dringking_id).update(coffee_origin_price=coffee_origin_price)
             coffee.objects.filter(coffee_id=dringking_id).update(coffee_price=coffee_price)
+            coffee.objects.filter(coffee_id=dringking_id).update(is_saled=coffee_is_saled)
+            coffee.objects.filter(coffee_id=dringking_id).update(limit_count=coffee_limit_count)
             coffee.objects.filter(coffee_id=dringking_id).update(order_by_id=int(order_by_id))
             coffee.objects.filter(coffee_id=dringking_id).update(coffee_concentration=int(coffee_concentration))
+            coffee.objects.filter(coffee_id=dringking_id).update(status=coffee_status)
             res["status"] = "ok"
         else:
             res["status"] = "error"
         return HttpResponse(json.dumps(res))
     except:
-        traceback.traceback
+        traceback.print_exc()
+	res["status"] = "error"
+	return HttpResponse(json.dumps(res))
+	
 
 #个人中心 - 我的咖啡
 def my_coffee_coupon(request):
@@ -744,69 +753,88 @@ def store_cart_data(request):
         drinking_price = data.get('drinking_price')
         drinking_name = data.get('drinking_name')
         drinking_id = data.get('drinking_id')           
+        drinking_is_saled = data.get('drinking_is_saled')           
+        drinking_limit_count = data.get('drinking_limit_count')           
         index = int(index)
         drinking_price = float(drinking_price)
         #drinking_price = int(drinking_price[:-3])
         first_level_cart_info = {}
         second_level_cart_info = {}
         flag = 0  
-        if 'access_token' in request.session and 'openid' in request.session:
-            access_token = request.session["access_token"]
-            if not access_token is None:
-                #统计购买饮品信息
-                if not "first_level_cart_info" in request.session:
-                    first_level_cart_info['count'] = index
-                    first_level_cart_info['price'] = ('%.2f' %drinking_price)
-                    
-                    tmp_second_level_cart_info = {}
-                    tmp_second_level_cart_info['drinking_name'] = drinking_name
-                    tmp_second_level_cart_info['drinking_price'] = ('%.2f' %drinking_price)
-                    tmp_second_level_cart_info['drinking_count'] = index
-                    tmp_second_level_cart_info['drinking_id'] = drinking_id
-                    second_level_cart_info[drinking_id] = tmp_second_level_cart_info
-                else:
-                    #统计第一层级购物车信息
-                    first_level_cart_info = request.session['first_level_cart_info']
-                    count = first_level_cart_info['count']
-                    first_level_cart_info['count'] = index + int(count)
-                    price = first_level_cart_info['price']
-                    first_level_cart_info['price'] = ('%.2f' % (drinking_price + float(price)))
-                    #统计第二层级购物车信息
-                    second_level_cart_info = request.session['second_level_cart_info']
-                    #遍历第二层级购物车信息
-                    for cart_info in second_level_cart_info.keys():
-                        #判断已经存在的饮品名称和本次用户选择的饮品名称是否相同，相同则在原有基础上更改数目，否则统计session中若没有重复则添加新的饮品
-                        if second_level_cart_info[cart_info]['drinking_name'] != drinking_name:
-                            flag += 1
-                            continue
-                        else:
-                            drink_count = second_level_cart_info[cart_info]['drinking_count']
-                            second_level_cart_info[cart_info]['drinking_count'] = index + int(drink_count)
-
-                    if int(flag) == len(second_level_cart_info):
-                        new_cart_info = {}
-                        new_cart_info['drinking_price'] = ('%.2f' %drinking_price)
-                        new_cart_info['drinking_name'] = drinking_name
-                        new_cart_info['drinking_count'] = index
-                        new_cart_info['drinking_id'] = drinking_id
-                        second_level_cart_info[drinking_id] = new_cart_info
-                #每次操作购物车后存储session        
-                request.session['first_level_cart_info'] = first_level_cart_info
-                request.session['second_level_cart_info'] = second_level_cart_info
-                res = {}
-                res['status'] = "ok"
-                res['first_level_cart_info'] = request.session['first_level_cart_info']
-                res['second_level_cart_info'] =  request.session['second_level_cart_info']
-                res = json.dumps(res)
-                return HttpResponse(res)
+        #if 'access_token' in request.session and 'openid' in request.session:
+        #    access_token = request.session["access_token"]
+        #    if not access_token is None:
+        #统计购买饮品信息
+        if not "first_level_cart_info" in request.session:
+	    if drinking_is_saled == "no": 
+            	first_level_cart_info['count'] = index
+            	first_level_cart_info['price'] = ('%.2f' %drinking_price)
+            	tmp_second_level_cart_info = {}
+            	tmp_second_level_cart_info['drinking_name'] = drinking_name
+            	tmp_second_level_cart_info['drinking_price'] = ('%.2f' %drinking_price)
+            	tmp_second_level_cart_info['drinking_count'] = index
+            	tmp_second_level_cart_info['drinking_id'] = drinking_id
+            	second_level_cart_info[drinking_id] = tmp_second_level_cart_info
+	    else:
+		if int(index) > int(drinking_limit_count):
+		    res['status'] = "warning"
+		    res['message'] = drinking_name + "限购" + drinking_limit_count + "杯"
+ 	            res = json.dumps(res)
+        	    return HttpResponse(res)
+		else:
+            	    first_level_cart_info['count'] = index
+            	    first_level_cart_info['price'] = ('%.2f' %drinking_price)
+            	    tmp_second_level_cart_info = {}
+            	    tmp_second_level_cart_info['drinking_name'] = drinking_name
+            	    tmp_second_level_cart_info['drinking_price'] = ('%.2f' %drinking_price)
+            	    tmp_second_level_cart_info['drinking_count'] = index
+            	    tmp_second_level_cart_info['drinking_id'] = drinking_id
+            	    second_level_cart_info[drinking_id] = tmp_second_level_cart_info
+	
         else:
-            url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
-            return HttpResponseRedirect(url)
+            #统计第一层级购物车信息
+            first_level_cart_info = request.session['first_level_cart_info']
+            count = first_level_cart_info['count']
+            first_level_cart_info['count'] = index + int(count)
+            price = first_level_cart_info['price']
+            first_level_cart_info['price'] = ('%.2f' % (drinking_price + float(price)))
+            #统计第二层级购物车信息
+            second_level_cart_info = request.session['second_level_cart_info']
+            #遍历第二层级购物车信息
+            for cart_info in second_level_cart_info.keys():
+                #判断已经存在的饮品名称和本次用户选择的饮品名称是否相同，相同则在原有基础上更改数目，否则统计session中若没有重复则添加新的饮品
+                if second_level_cart_info[cart_info]['drinking_name'] != drinking_name:
+                    flag += 1
+                    continue
+                else:
+                    drink_count = second_level_cart_info[cart_info]['drinking_count']
+                    second_level_cart_info[cart_info]['drinking_count'] = index + int(drink_count)
+
+            if int(flag) == len(second_level_cart_info):
+                new_cart_info = {}
+                new_cart_info['drinking_price'] = ('%.2f' %drinking_price)
+                new_cart_info['drinking_name'] = drinking_name
+                new_cart_info['drinking_count'] = index
+                new_cart_info['drinking_id'] = drinking_id
+                second_level_cart_info[drinking_id] = new_cart_info
+        #每次操作购物车后存储session        
+        request.session['first_level_cart_info'] = first_level_cart_info
+        request.session['second_level_cart_info'] = second_level_cart_info
+        res = {}
+        res['status'] = "ok"
+        res['first_level_cart_info'] = request.session['first_level_cart_info']
+        res['second_level_cart_info'] =  request.session['second_level_cart_info']
+        res = json.dumps(res)
+        return HttpResponse(res)
+        #else:
+        #    url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'%(config.appid, config.callback)
+        #    return HttpResponseRedirect(url)
     except:
         print traceback.print_exc()
         res['status'] = "error"
         res['first_level_cart_info'] = ""
         res['second_level_cart_info'] = ""
+        res = json.dumps(res)
         return HttpResponse(res)
 
 #删除购物车所有信息

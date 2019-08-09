@@ -17,6 +17,8 @@ class coffee(models.Model):
     package_code = models.CharField(max_length=255,blank=False)
     coffee_concentration = models.IntegerField()
     order_by_id = models.IntegerField()
+    status = models.CharField(max_length=255,blank=False)
+    is_saled = models.CharField(max_length=255,blank=False)
 
 
 class coffee_trade(models.Model):
